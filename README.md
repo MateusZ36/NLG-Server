@@ -37,17 +37,19 @@ nlg:
 Também há a possibilidade de recarregar o domain ao fazer um request `GET` no endpoint `/reload`
 <details>
 <summary>Exemplo de resposta de <code>/reload</code></summary>
-<pre>
+
+```json
 {
  "text":"Loaded 6 responses",
  "domain_path":"."
 }
-</pre>
+```
 </details>
 
 <details>
 <summary>Exemplo de resposta de <code>/reload?show_responses=title</code></summary>
-<pre>
+
+```json
 {
  "text":"Loaded 6 responses",
  "domain_path":".",
@@ -60,12 +62,13 @@ Também há a possibilidade de recarregar o domain ao fazer um request `GET` no 
   "utter_iamabot"
  ]
 }
-</pre>
+```
 </details>
 
 <details>
 <summary>Exemplo de resposta de <code>/reload?show_responses=full</code></summary>
-<pre>
+
+```json
 {
  "text":"Loaded 6 responses",
  "domain_path":".",
@@ -103,5 +106,5 @@ Também há a possibilidade de recarregar o domain ao fazer um request `GET` no 
   ]
  }
 }
-</pre>
+```
 </details>
