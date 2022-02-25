@@ -22,7 +22,7 @@ python server.py
  - `-p` ou `--port`: port utilizado pelo server (padrão: `5065`)
  - `-w` ou `--workers`: quantia de workers a serem utilizados (padrão: `1`)
 
-### Utilização:
+### Arquivo de Responses:
 
 no arquivo `endpoints.yml` do Rasa, adicione a seguinte configuração:
 ```yml
