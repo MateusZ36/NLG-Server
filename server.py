@@ -18,26 +18,36 @@ DEFAULT_SERVER_PORT = 5065
 
 
 class NlgServer:
-
     def __init__(self, domain_path, port, workers):
+        self.domain = None
         self.domain_path = domain_path
-        self.domain = self.load_domain()
+        self.load_domain()
         self.port = port
         self.workers = workers
 
-    def load_domain(self):
-        return Domain.load(self.domain_path)
+    def load_domain(self, debug_mode=None):
+        self.domain = Domain.load(self.domain_path)
+        debug_dict = {
+            "text": f"Loaded {len(self.domain.responses)} responses",
+            "domain_path": self.domain_path
+        }
+        if debug_mode == "title":
+            debug_dict["responses"] = list(self.domain.responses.keys())
+        elif debug_mode == "full":
+            debug_dict["responses"] = self.domain.responses
+
+        return debug_dict
 
     async def generate_response(self, nlg_call):
         kwargs = nlg_call.get("arguments", {})
-        response = nlg_call.get("response")
+        response_arg = nlg_call.get("response")
         sender_id = nlg_call.get("tracker", {}).get("sender_id")
         events = nlg_call.get("tracker", {}).get("events")
         tracker = DialogueStateTracker.from_dict(sender_id, events, self.domain.slots)
         channel_name = nlg_call.get("channel").get("name")
 
         return await CustomNLG(EndpointConfig(), self.domain).generate(
-            response, tracker, channel_name, **kwargs
+            response_arg, tracker, channel_name, **kwargs
         )
 
     def run_server(self):
@@ -45,31 +55,21 @@ class NlgServer:
 
         @app.route("/nlg", methods=["POST"])
         async def nlg(request):
-            """Endpoint which processes the Core request for a bot response."""
             nlg_call = request.json
             bot_response = await self.generate_response(nlg_call)
-
             return response.json(bot_response)
+
         if config("RASA_ENVIRONMENT", default="DEV") == "DEV":
             @app.route("/reload", methods=["GET"])
             async def reload(request):
-                self.domain = self.load_domain()
-                response_dict = {
-                    "text": f"Loaded {len(self.domain.responses)} responses",
-                    "domain_path": self.domain_path
-                }
+                debug_response = self.load_domain(request.args.get("show_responses"))
 
-                show_responses_arg = request.args.get("show_responses")
-                if show_responses_arg == "title":
-                    response_dict["responses"] = list(self.domain.responses.keys())
-                elif show_responses_arg == "full":
-                    response_dict["responses"] = self.domain.responses
                 return response.json(
-                    response_dict
+                    debug_response
                 )
 
         app.run(
-            host="0.0.0.0",
+            host="localhost",
             port=self.port,
             workers=self.workers,
             backlog=int(os.environ.get(ENV_SANIC_BACKLOG, "100")),
