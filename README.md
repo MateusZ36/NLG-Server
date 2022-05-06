@@ -21,6 +21,7 @@ python server.py
  - `-d` ou `--domain`: localizaçao dos arquivos (padrão: `.`)
  - `-p` ou `--port`: port utilizado pelo server (padrão: `5065`)
  - `-w` ou `--workers`: quantia de workers a serem utilizados (padrão: `1`)
+ - `--nlg`: caminho da classe de NLG customizada a ser carregada (padrão: `TemplatedNaturalLanguageGenerator`)
 
 ### Importação de arquivos
 Para importar o arquivo de responses, basta colocar os arquivos na pasta especificada no parâmetro `-d` 
@@ -30,6 +31,12 @@ No arquivo `endpoints.yml` do Rasa, adicione a seguinte configuração:
 ```yml
 nlg:
   url: http://localhost:5056/nlg
+```
+
+#### NLG Customizado
+Para utilizar um NLG diferente, basta passar por parâmetro ao inicializar o serviço, exemplo:
+```shell
+python server.py --nlg generator.CustomNLG
 ```
 
 #### Endpoint `/reload`
