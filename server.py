@@ -72,7 +72,7 @@ class NlgServer:
                 )
 
         app.run(
-            host="localhost",
+            host="0.0.0.0",
             port=self.port,
             workers=self.workers,
             backlog=int(os.environ.get(ENV_SANIC_BACKLOG, "100")),
