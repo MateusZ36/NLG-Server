@@ -16,7 +16,7 @@ import file_watcher
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     format='%(asctime)s %(levelname)-8s %(message)s',
-    level=logging.DEBUG,
+    level=logging.INFO,
     datefmt='%Y-%m-%d %H:%M:%S'
 )
 
@@ -45,10 +45,10 @@ class NlgServer:
             file_watcher.start(self)
 
     def _get_domain(self):
-        logger.debug("Starting to load domain")
+        logger.info("Starting to load domain")
         try:
             domain = Domain.load(self.domain_path)
-            logger.debug(f"Successfully loaded domain with {len(domain.responses)} responses")
+            logger.info(f"Successfully loaded domain with {len(domain.responses)} responses")
         except Exception as e:
             domain = Domain.empty()
             logger.error(e)
