@@ -11,27 +11,55 @@ from rasa.shared.core.domain import Domain
 from rasa.shared.core.trackers import DialogueStateTracker
 
 
-logger = logging.getLogger(__name__)
+import file_watcher
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    level=logging.DEBUG,
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 DEFAULT_SERVER_PORT = 5065
+RASA_ENVIRONMENT = config("RASA_ENVIRONMENT", default="DEV")
 
 
 class NlgServer:
-    def __init__(self, domain_path, port, workers, nlg_class=TemplatedNaturalLanguageGenerator):
-        self.domain = Domain.load(domain_path)
+    def __init__(
+        self,
+        domain_path="./data",
+        port=DEFAULT_SERVER_PORT,
+        workers=1,
+        nlg_class=TemplatedNaturalLanguageGenerator
+    ):
+        self.domain_path = domain_path
+        self.domain = self._get_domain()
         if isinstance(nlg_class, str):
             self.nlg_class = NaturalLanguageGenerator.create(EndpointConfig(type=nlg_class), self.domain)
         else:
             self.nlg_class = nlg_class(self.domain.responses)
-        self.domain_path = domain_path
-        self.load_domain()
         self.port = port
         self.workers = workers
 
+        if RASA_ENVIRONMENT == "DEV":
+            file_watcher.start(self)
+
+    def _get_domain(self):
+        logger.debug("Starting to load domain")
+        try:
+            domain = Domain.load(self.domain_path)
+            logger.debug(f"Successfully loaded domain with {len(domain.responses)} responses")
+        except Exception as e:
+            domain = Domain.empty()
+            logger.error(e)
+        return domain
+
     def load_domain(self, debug_mode=None):
-        self.domain = Domain.load(self.domain_path)
-        self.nlg_class.responses = self.domain.responses
+        try:
+            self.domain = self._get_domain()
+            self.nlg_class.responses = self.domain.responses
+        except Exception as e:
+            logger.error(e)
         debug_dict = {
             "text": f"Loaded {len(self.nlg_class.responses)} responses",
             "domain_path": self.domain_path
@@ -62,14 +90,11 @@ class NlgServer:
             bot_response = await self.generate_response(nlg_call)
             return response.json(bot_response)
 
-        if config("RASA_ENVIRONMENT", default="DEV") == "DEV":
+        if RASA_ENVIRONMENT == "DEV":
             @app.route("/reload", methods=["GET"])
             async def reload(request):
                 debug_response = self.load_domain(request.args.get("show_responses"))
-
-                return response.json(
-                    debug_response
-                )
+                return response.json(debug_response)
 
         app.run(
             host="0.0.0.0",
@@ -99,7 +124,7 @@ def create_argument_parser():
         "-d",
         "--domain",
         type=str,
-        default=".",
+        default="./data",
         help="path of the domain file to load utterances from",
     )
     parser.add_argument(
@@ -122,5 +147,5 @@ if __name__ == "__main__":
         cmdline_args.domain,
         cmdline_args.port,
         cmdline_args.workers,
-        cmdline_args.nlg,
+        cmdline_args.nlg
     ).run_server()
