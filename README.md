@@ -4,6 +4,9 @@
 
 o NLG Server é utilizado como um seletor de respostas baseado em `templates` para o [Rasa](https://github.com/RasaHQ/rasa), fazendo com que não há necessidade de retreinar o bot para que as alterações das `responses` façam efeito
 
+##  Exemplos
+
+Como exemplo de utilização desse serviço, acesse este [link](https://github.com/MateusZ36/NLG-Server-examples)
 
 ##  Utilização
 
