@@ -27,7 +27,7 @@ RASA_ENVIRONMENT = config("RASA_ENVIRONMENT", default="DEV")
 class NlgServer:
     def __init__(
         self,
-        domain_path=".",
+        domain_path="./data",
         port=DEFAULT_SERVER_PORT,
         workers=1,
         nlg_class=TemplatedNaturalLanguageGenerator
@@ -124,7 +124,7 @@ def create_argument_parser():
         "-d",
         "--domain",
         type=str,
-        default=".",
+        default="./data",
         help="path of the domain file to load utterances from",
     )
     parser.add_argument(

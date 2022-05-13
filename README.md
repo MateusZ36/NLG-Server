@@ -18,7 +18,7 @@ python server.py
 ``` 
 
 ### Argumentos
- - `-d` ou `--domain`: localizaçao dos arquivos (padrão: `.`)
+ - `-d` ou `--domain`: localizaçao dos arquivos (padrão: `./data`)
  - `-p` ou `--port`: port utilizado pelo server (padrão: `5065`)
  - `-w` ou `--workers`: quantia de workers a serem utilizados (padrão: `1`)
  - `--nlg`: caminho da classe de NLG customizada a ser carregada (padrão: `TemplatedNaturalLanguageGenerator`)
